@@ -1,0 +1,190 @@
+{include file="public/head" /}
+</head>
+<body class="layui-layout-body">
+<div class="layui-layout layui-layout-admin">
+    <div class="layui-tab">
+        <ul class="layui-tab-title">
+            <li class="layui-this">宿管用户列表</li>
+            <li>新建用户</li>
+        </ul>
+
+        <div class="layui-tab-content">
+            <div class="layui-tab-item layui-show">
+                <div class="layui-col-md12">
+                    <div class="layui-inline">
+                        <input type="text" placeholder="按楼号,姓名搜索" class="layui-input" id="keyword">
+                    </div>
+                    <button class="layui-btn" id="search">搜索</button>
+                    <button class="layui-btn layui-btn-danger" id="reset">重置</button>
+
+                    <table id="table" lay-filter="table"></table>
+                    <script type="text/html" id="operation">
+                        {{#  if(d.status === 1){ }}
+                        <a class="layui-btn layui-btn-xs" lay-event="disable">禁用</a>
+                        {{#  } }}
+                        {{#  if(d.status === 0){ }}
+                        <a class="layui-btn layui-btn-xs" lay-event="enable">启用</a>
+                        {{#  } }}
+                        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+                    </script>
+                </div>
+            </div>
+            <div class="layui-tab-item">
+                <div class="layui-row">
+                    <div class="layui-col-md5">
+                        <form class="layui-form" action="">
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">用户名</label>
+                                <div class="layui-input-block">
+                                    <input type="text" name="username" lay-verify="required" autocomplete="off"
+                                           class="layui-input" onblur="showBookName(this)">
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">密码</label>
+                                <div class="layui-input-block">
+                                    <input type="password" name="password" lay-verify="required" autocomplete="off"
+                                           class="layui-input">
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">姓名</label>
+                                <div class="layui-input-block">
+                                    <input type="text" name="name" lay-verify="required" autocomplete="off"
+                                           class="layui-input">
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <div class="layui-inline">
+                                    <label class="layui-form-label">管理楼号:</label>
+                                    <div class="layui-input-inline">
+                                        <select name="building_id" id="building_id" lay-verify="require">
+                                            <option value="" hidden>请选择</option>
+                                            {volist name="$buildingList" id="vo"}
+                                            <option value="{$vo.building_id}">{$vo.name}</option>
+                                            {/volist}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="layui-form-item" style="text-align: center">
+                                <a class="layui-btn" lay-submit="" lay-filter="addUser">提交</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    layui.use(['element','table','form'], function(){
+        var table = layui.table,layer = layui.layer,form = layui.form;
+        //表格加载
+        table.render({
+            elem: '#table'
+            ,height: 450
+            ,url: '/admin/User/getList'
+            ,page: true
+            ,cols: [[
+                {field: 'id', title: 'ID', sort: true, fixed: 'left', width:60}
+                ,{field: 'username', title: '用户名', width:120}
+                ,{field: 'name', title: '姓名', width:150}
+                ,{field: 'building_id', title: '管理楼号', width:100}
+                ,{field: 'status', title: '状态', width:80, templet: function(d){
+                    return d.status==0 ? '禁用' : '启用';
+                }}
+                ,{field: 'last_login_time_time', title: '最后登录时间', width:170}
+                ,{title:'操作', toolbar: '#operation', width:120}
+            ]]
+        });
+        //监听表格操作按钮
+        table.on('tool(table)', function(obj){
+            var data = obj.data;
+            var id = data.id;//操作的记录id
+            //console.log(obj);
+            if(obj.event === 'disable'){
+                //禁用
+                layer.confirm('确认要禁用吗?', function(index){
+                    $.post("{:url('admin/User/disable')}",{id:id},function(res){
+                        if(res.code==0){
+                            layer.msg(res.msg, {time: 2000, icon:5});
+                        }else{
+                            var keyword = $("#keyword").val();
+                            var url = "/admin/User/getList?keyword="+keyword;
+                            table.reload('table', {
+                                url: url
+                                ,where: {}
+                            });
+                            layer.msg(res.msg, {time: 1500, icon:6});
+                        }
+                    },"json");
+                });
+            }else if(obj.event === 'enable'){
+                //启用
+                layer.confirm('确认要启用吗?', function(index){
+                    $.post("{:url('admin/User/enable')}",{id:id},function(res){
+                        if(res.code==0){
+                            layer.msg(res.msg, {time: 2000, icon:5});
+                        }else{
+                            var keyword = $("#keyword").val();
+                            var url = "/admin/User/getList?keyword="+keyword;
+                            table.reload('table', {
+                                url: url
+                                ,where: {}
+                            });
+                            layer.msg(res.msg, {time: 1500, icon:6});
+                        }
+                    },"json");
+                });
+            }else if(obj.event === 'del'){
+                //删除问卷
+                layer.confirm('确认要删除吗?', function(index){
+                    $.post("{:url('admin/User/delete')}",{id:id},function(res){
+                        if(res.code==0){
+                            layer.msg(res.msg, {time: 2000, icon:5});
+                        }else{
+                            obj.del();//前端删除
+                            layer.msg(res.msg, {time: 1500, icon:6});
+                        }
+                    },"json");
+                });
+            }
+        });
+
+        //搜索
+        $("#search").click(function () {
+            //获取搜索的关键字
+            var keyword = $("#keyword").val();
+            if(keyword==''){return false;}
+            var url = "/admin/User/getList?keyword="+keyword;
+            table.reload('table', {
+                url: url
+                ,where: {}
+            });
+        });
+        //重置搜索
+        $("#reset").click(function () {
+            $("#keyword").val('');
+            //表格重载
+            table.reload('table', {
+                url: "/admin/User/getList?keyword="
+                ,where: {}
+            });
+        });
+        //监听办理借阅表单提交
+        form.on('submit(addUser)', function (data) {
+            $.post("{:url('admin/user/addUser')}",{data:data.field},function(res){
+                if(res.code==0){
+                    layer.msg(res.msg, {time: 2000, icon:5});
+                }else{
+                    layer.msg(res.msg, {time: 1500, icon:6});
+                    $("form")[0].reset();
+                    form.render();
+                }
+            },"json");
+        });
+    });
+</script>
+</body>
+</html>

@@ -53,4 +53,45 @@ class UserModel extends Model
             return ['code' => 0, 'msg' => '修改失败'];
         }
     }
+
+    /**
+     * 禁用
+     * @param $id
+     * @return array
+     */
+    public function doDisable($id){
+        $update = $this->where('id',$id)->update(['status'=>0]);
+        if ($update) {
+            return ['code' => 1, 'msg' => '禁用成功'];
+        } else {
+            return ['code' => 0, 'msg' => '禁用失败'];
+        }
+    }
+
+    /**
+     * 启用
+     * @param $id
+     * @return array
+     */
+    public function doEnable($id){
+        $update = $this->where('id',$id)->update(['status'=>1]);
+        if ($update) {
+            return ['code' => 1, 'msg' => '禁用成功'];
+        } else {
+            return ['code' => 0, 'msg' => '禁用失败'];
+        }
+    }
+    /**
+     * 启用
+     * @param $id
+     * @return array
+     */
+    public function doDelete($id){
+        $update = $this->where('id',$id)->update(['delete_time'=>time()]);
+        if ($update) {
+            return ['code' => 1, 'msg' => '删除成功'];
+        } else {
+            return ['code' => 0, 'msg' => '删除失败'];
+        }
+    }
 }
