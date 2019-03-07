@@ -1,0 +1,127 @@
+{include file="public/head" /}
+<style>
+    .layui-card{background-color: #F2F2F2;margin: 10px}
+    .search{margin-left: 10px}
+    .layui-input-block {margin-left: 0;}
+    #checkOut{display: none}
+</style>
+</head>
+<body>
+<div class="layui-layout">
+    <div class="layui-row">
+        <div class="layui-tab">
+            <ul class="layui-tab-title">
+                <li class="layui-this">退宿办理</li>
+            </ul>
+        </div>
+    </div>
+    <div class="layui-col-md4 search">
+        <div class="layui-inline">
+            <input type="text" class="layui-input" name="student_id" placeholder="输入学号搜索">
+        </div>
+        <button class="layui-btn" id="search">搜索</button>
+        <button class="layui-btn layui-btn-danger" id="checkOut">退宿办理</button>
+    </div>
+    <div class="layui-col-md12">
+        <div class="layui-card" hidden>
+            <div class="layui-card-body" style="overflow: hidden;">
+                <div class="layui-col-md6 left">
+
+                </div>
+                <div class="layui-col-md6 right">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script>
+    var studentId = '';
+    layui.use(['layer'], function () {
+        var layer = layui.layer;
+        $("#search").on('click',function(){
+            studentId = $("input[name='student_id']").val();
+            if(studentId==''){
+                layer.msg('搜索内容不能为空', {time: 2000, icon: 5});
+                return false;
+            }
+            $.get("{:url('admin/student/getStudentDetail')}", {studentId:studentId}, function (res) {
+                if (res.code == 0) {
+                    layer.msg(res.msg, {time: 2000, icon: 5});
+                } else {
+                    var data = res.data;
+                    var left_str = "<div class=\"layui-input-block\">" +
+                        "                <label>学号:</label>" +
+                        "                <span>"+data.student_id+"</span>" +
+                        "           </div>" +
+                        "           <div class=\"layui-input-block\">" +
+                        "                <label>姓名:</label>" +
+                        "                <span>"+data.name+"</span>" +
+                        "           </div>" +
+                        "           <div class=\"layui-input-block\">" +
+                        "                <label>性别:</label>" +
+                        "                <span>"+(data.sex ? '女' : '男')+"</span>" +
+                        "           </div>" +
+                        "           <div class=\"layui-input-block\">" +
+                        "                <label>手机:</label>" +
+                        "                <span>"+data.mobile+"</span>" +
+                        "           </div>" +
+                        "           <div class=\"layui-input-block\">" +
+                        "                <label>出生日期:</label>" +
+                        "                <span>"+data.birthday+"</span>" +
+                        "           </div>";
+                    $(".left").html(left_str);
+                    var right_str = "<div class=\"layui-input-block\">" +
+                        "                <label>专业班级:</label>" +
+                        "                <span>"+data.class+"</span>" +
+                        "           </div>" +
+                        "           <div class=\"layui-input-block\">" +
+                        "                <label>年级:</label>" +
+                        "                <span>"+data.grade+"级</span>" +
+                        "           </div>" +
+                        "           <div class=\"layui-input-block\">" +
+                        "                <label>楼号:</label>" +
+                        "                <span>"+data.building_id+"</span>" +
+                        "           </div>" +
+                        "           <div class=\"layui-input-block\">" +
+                        "                <label>宿舍号:</label>" +
+                        "                <span>"+data.dormitory_number+"</span>" +
+                        "           </div>" +
+                        "           <div class=\"layui-input-block\">" +
+                        "                <label>床号:</label>" +
+                        "                <span>"+data.bed_number+"</span>" +
+                        "           </div>";
+                    $(".right").html(right_str);
+                    $(".layui-card").show(500);
+                    $("#checkOut").show();
+                }
+            }, "json");
+        });
+        //办理退宿
+        $("#checkOut").on('click',function() {
+            if (studentId == '') {
+                layer.msg('学号不能为空', {time: 2000, icon: 5});
+                return false;
+            }
+            $.post("{:url('admin/student/checkOutPost')}", {studentId:studentId}, function (res) {
+                if (res.code == 0) {
+                    layer.msg(res.msg, {time: 2000, icon: 5});
+                } else {
+                    layer.msg(res.msg, {time: 1500, icon: 6});
+                    //清空输入框,隐藏学生信息和按钮
+                    $(".layui-card").hide(500);
+                    $("#checkOut").hide();
+                    $("input[name='student_id']").val('');
+                }
+            }, "json");
+        });
+
+
+
+
+    });
+
+</script>
+</body>
+</html>
