@@ -2,15 +2,12 @@
 </head>
 <body class="layui-layout-body">
 <div class="layui-layout layui-layout-admin">
-    <div class="layui-header">
-        <div class="layui-logo"><a href="/admin/Index/index" style="color: #009688">学校宿舍管理系统</a></div>
+    <div class="layui-header layui-bg-blue">
+        <div class="layui-logo"><a href="/admin/Index/index" style="color: #fff;font-size: 20px">学校宿舍管理系统</a></div>
         <!-- 头部按钮 -->
         <ul class="layui-nav layui-layout-right">
             <li class="layui-nav-item">
-                <a href="javascript:;">{$username}</a>
-                <dl class="layui-nav-child">
-                    <dd><a href="javascript:;" onclick="openapp('/admin/Index/changePassword')">修改密码</a></dd>
-                </dl>
+                <a>{$username}</a>
             </li>
             <li class="layui-nav-item">
                 <a href="javascript:;" id="loginOut">注销</a>
@@ -18,15 +15,26 @@
         </ul>
     </div>
     <div class="layui-side layui-bg-black">
-        <div class="layui-side-scroll">
+        <div class="layui-side-scroll layui-bg-cyan">
             <!-- 左侧导航区域 -->
-            <ul class="layui-nav layui-nav-tree"  lay-filter="test">
+            <ul class="layui-nav layui-nav-tree layui-bg-cyan" lay-filter="test" >
                 <li class="layui-nav-item"><a href="javascript:;" onclick="openapp('/admin/Index/center')">首页</a></li>
+                <!--admin登录不能办理入住和退宿登记-->
+                {neq name="$id" value="1"}
+                    <li class="layui-nav-item"><a href="javascript:;" onclick="openapp('/admin/Student/checkIn')">入住登记</a></li>
+                    <li class="layui-nav-item"><a href="javascript:;" onclick="openapp('/admin/Student/checkOut')">退宿登记</a></li>
+                {/neq}
+
+                <li class="layui-nav-item"><a href="javascript:;" onclick="openapp('/admin/Index/center')">宿舍树状图</a></li>
                 <li class="layui-nav-item">
-                    <a href="javascript:;">管理</a>
+                    <a href="javascript:;">基础信息管理</a>
                     <dl class="layui-nav-child">
-                        <dd><a href="javascript:;" onclick="openapp('/admin/index/index')"></a></dd>
-                        <dd><a href="javascript:;" onclick="openapp('/admin/index/index')"></a></dd>
+                        {eq name="$id" value="1"}
+                        <dd><a href="javascript:;" onclick="openapp('/admin/index/index')">宿管用户管理</a></dd>
+                        <dd><a href="javascript:;" onclick="openapp('/admin/index/index')">宿舍楼管理</a></dd>
+                        {/eq}
+                        <dd><a href="javascript:;" onclick="openapp('/admin/index/index')">宿舍管理</a></dd>
+
                     </dl>
                 </li>
                 <li class="layui-nav-item"><a href="javascript:;" onclick="openapp('/admin/Index/changePassword')">修改密码</a></li>
@@ -35,8 +43,8 @@
     </div>
 
     <div class="layui-body">
-        <iframe src="{:url('admin/Index/center')}" style="width:100%;height: 100%;overflow: auto"
-                class="appiframe"></iframe>
+        <iframe src="{:url('admin/Index/center')}" style="width:100%;height: 100%;overflow: auto" frameborder="no"
+                scrolling="no" class="appiframe"></iframe>
     </div>
 </div>
 <script>

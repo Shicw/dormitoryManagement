@@ -20,8 +20,7 @@ class UserModel extends Model
      * @return array
      */
     public function doLogin($username, $password, $type){
-        $find = $this->field(['id', 'username'])
-            ->where(['username' => $username, 'password' => md5($password)])
+        $find = $this->where(['username' => $username, 'password' => md5($password)])
             ->find();
         if ($find) {
             $find = $find->toArray();

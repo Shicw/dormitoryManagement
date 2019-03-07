@@ -1,0 +1,163 @@
+{include file="public/head" /}
+</head>
+<body>
+<div class="layui-layout">
+    <div class="layui-row">
+        <div class="layui-tab">
+            <ul class="layui-tab-title">
+                <li class="layui-this">登记入住</li>
+            </ul>
+        </div>
+    </div>
+    <div class="layui-col-md4">
+        <form class="layui-form" action="">
+            <div class="layui-form-item">
+                <label class="layui-form-label">学号:</label>
+                <div class="layui-input-block">
+                    <input type="text" name="student_id" autocomplete="off" class="layui-input" lay-verify="">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">姓名:</label>
+                <div class="layui-input-block">
+                    <input type="text" name="name" autocomplete="off" class="layui-input" lay-verify="">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">性别:</label>
+                <div class="layui-input-block" lay-verify="">
+                    <input type="radio" name="sex" value="0" title="男">
+                    <input type="radio" name="sex" value="1" title="女">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">手机:</label>
+                <div class="layui-input-block">
+                    <input type="text" name="mobile" autocomplete="off" class="layui-input" lay-verify="">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">出生日期</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="birthday" id="birthday" autocomplete="off" class="layui-input" lay-verify="">
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">级数:</label>
+                <div class="layui-input-block">
+                    <input type="text" name="grade" autocomplete="off" class="layui-input" placeholder="例如:2015,2016" lay-verify="">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">专业班级:</label>
+                <div class="layui-input-block">
+                    <input type="text" name="class" autocomplete="off" class="layui-input" placeholder="例如:信工151" lay-verify="">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">楼号:</label>
+                <div class="layui-input-block">
+                    <input type="text" name="building_id" autocomplete="off" class="layui-input" value="{$buildingId}" readonly>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">楼层:</label>
+                    <div class="layui-input-inline">
+                        <select name="floor" lay-verify="" lay-filter="floor">
+                            <option value="" hidden>请选择</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">宿舍号:</label>
+                    <div class="layui-input-inline">
+                        <select name="dormitory_id" id="dormitory_id" lay-verify="" lay-search="" lay-filter="dormitory">
+                            <option value="" hidden>请选择</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">床位号:</label>
+                    <div class="layui-input-inline">
+                        <select name="bed_id" id="bed_id" lay-verify="">
+                            <option value="" hidden>请选择</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <a class="layui-btn" lay-submit="" lay-filter="post">提交</a>
+            <a class="layui-btn layui-btn-danger" id="reset">重置</a>
+        </form>
+    </div>
+</div>
+</body>
+<script>
+    var buildingId = {$buildingId};
+    layui.use(['form', 'laydate'], function () {
+        var form = layui.form, layer = layui.layer,laydate = layui.laydate;
+        laydate.render({
+            elem: '#birthday'
+        });
+        //表单提交
+        form.on('submit(post)', function (data) {
+            data.field['building_id'] = buildingId;
+            $.post("{:url('admin/student/checkInPost')}", {data: data.field}, function (res) {
+                if (res.code == 0) {
+                    layer.msg(res.msg, {time: 2000, icon: 5});
+                } else {
+                    layer.msg(res.msg, {time: 1500, icon: 6});
+                    $("form")[0].reset();
+                    form.render();
+                }
+            }, "json");
+        });
+        //清空表单
+        $("#reset").on('click',function (data) {
+            $("form")[0].reset();
+            form.render();
+        });
+        //下拉框监听
+        form.on('select(floor)', function (data) {
+            $.get("{:url('admin/dormitory/getListByFloor')}", {floor: data.value,buildingId:buildingId}, function (res) {
+                var select = $("#dormitory_id");
+                select.find('option:not(:first)').remove();
+                $('#bed_id option:not(:first)').remove();
+                if (res.code === 1) {
+                    var data = res.data;
+                    for(var i=0;i<data.length;i++){
+                        select.append("<option value='"+data[i].id+"'>"+data[i].dormitory_number+"</option>");
+                    }
+                }
+                form.render();
+            }, "json");
+        });
+        form.on('select(dormitory)', function (data) {
+            $.get("{:url('admin/dormitory/getListByDormitory')}", {dormitoryId: data.value}, function (res) {
+                var select = $("#bed_id");
+                select.find('option:not(:first)').remove();
+                if (res.code === 1) {
+                    var data = res.data;
+                    for(var i=0;i<data.length;i++){
+                        select.append("<option value='"+data[i].id+"'>"+data[i].bed_number+"</option>");
+                    }
+                }
+                form.render();
+            }, "json");
+        });
+    });
+
+</script>
+</body>
+</html>
