@@ -94,4 +94,24 @@ class UserModel extends Model
             return ['code' => 0, 'msg' => '删除失败'];
         }
     }
+
+    /**
+     * 添加宿管用户
+     * @param $data
+     * @return array
+     */
+    public function doAdd($data){
+        $insert = $this->insert([
+            'username' => $data['username'],
+            'password' => md5($data['password']),
+            'name' => $data['name'],
+            'building_id' => $data['building_id'],
+            'status' => 1,
+        ]);
+        if ($insert) {
+            return ['code' => 1, 'msg' => '添加成功'];
+        } else {
+            return ['code' => 0, 'msg' => '添加失败'];
+        }
+    }
 }

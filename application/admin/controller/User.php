@@ -113,5 +113,17 @@ class User extends AdminBaseController
     /**
      * 添加用户
      */
-    public function addUser(){}
+    public function addUser(){
+        if(!$this->request->isPost()){
+            $this->error('请求失败');
+        }
+        $data = $this->request->post('data');
+        $model = new UserModel();
+        $result = $model->doAdd($data);
+        if($result['code']===1){
+            $this->success($result['msg']);
+        }else{
+            $this->error($result['msg']);
+        }
+    }
 }
