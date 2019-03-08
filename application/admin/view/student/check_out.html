@@ -48,10 +48,7 @@
             }
             $.get("{:url('admin/student/getStudentDetail')}", {studentId:studentId}, function (res) {
                 if (res.code == 0) {
-                    $(".left").html("");
-                    $(".left").html("");
-                    var msg = res.msg;
-                    layer.msg(msg, {time: 2000, icon: 5});
+                    layer.msg(res.msg, {time: 2000, icon: 5});
                 } else {
                     var data = res.data;
                     var left_str = "<div class=\"layui-input-block\">" +

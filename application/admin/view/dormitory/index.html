@@ -28,7 +28,7 @@
     </div>
 </div>
 <script>
-    layui.use(['tree'], function(){
+    layui.use(['tree','layer'], function(){
         var layer = layui.layer;
         $.get("/admin/dormitory/getDormitoryTree",{},function(res){
             //console.log(res.data);
@@ -42,6 +42,9 @@
                             //点击床位ajax显示学生信息
                             $.get("{:url('admin/Dormitory/getStudentDetail')}", {bedId:node.id}, function (res) {
                                 if (res.code == 0) {
+                                    $(".layui-card").hide();
+                                    $(".left").html("");
+                                    $(".right").html("");
                                     layer.msg(res.msg, {time: 2000, icon: 5});
                                 } else {
                                     var data = res.data;
