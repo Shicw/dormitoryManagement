@@ -1,0 +1,136 @@
+{include file="public/head" /}
+</head>
+<body class="layui-layout-body">
+<div class="layui-layout layui-layout-admin">
+    <div class="layui-tab">
+        <ul class="layui-tab-title">
+            <li class="layui-this">宿管楼列表</li>
+            <li>添加宿舍楼</li>
+        </ul>
+
+        <div class="layui-tab-content">
+            <div class="layui-tab-item layui-show">
+                <div class="layui-col-md12">
+                    <div class="layui-inline">
+                        <input type="text" placeholder="按楼号搜索" class="layui-input" id="keyword">
+                    </div>
+                    <button class="layui-btn" id="search">搜索</button>
+                    <button class="layui-btn layui-btn-danger" id="reset">重置</button>
+
+                    <table id="table" lay-filter="table"></table>
+                    <script type="text/html" id="operation">
+                        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+                    </script>
+                </div>
+            </div>
+            <div class="layui-tab-item">
+                <div class="layui-row">
+                    <div class="layui-col-md5">
+                        <form class="layui-form" action="">
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">楼号</label>
+                                <div class="layui-input-block">
+                                    <input type="text" name="building_id" lay-verify="required" autocomplete="off"
+                                           class="layui-input">
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">名称</label>
+                                <div class="layui-input-block">
+                                    <input type="text" name="name" lay-verify="required" autocomplete="off"
+                                           class="layui-input">
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">层数</label>
+                                <div class="layui-input-block">
+                                    <input type="number" name="floor_count" lay-verify="required" autocomplete="off"
+                                           class="layui-input">
+                                </div>
+                            </div>
+                            <div class="layui-form-item" style="text-align: center">
+                                <a class="layui-btn" lay-submit="" lay-filter="addBulding">提交</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    layui.use(['element','table','form'], function(){
+        var table = layui.table,layer = layui.layer,form = layui.form;
+        //表格加载
+        table.render({
+            elem: '#table'
+            ,height: 450
+            ,url: '/admin/Building/getList'
+            ,page: true
+            ,cols: [[
+                {field: 'building_id', title: '楼号', sort: true, fixed: 'left'}
+                ,{field: 'name', title: '名称'}
+                ,{field: 'floor_count', title: '层数'}
+                ,{title:'操作', toolbar: '#operation'}
+            ]]
+        });
+        //监听表格操作按钮
+        table.on('tool(table)', function(obj){
+            var data = obj.data;
+            var id = data.building_id;//操作的记录id
+            if(obj.event === 'del'){
+                //删除
+                layer.confirm('确认要删除吗?', function(index){
+                    $.post("{:url('admin/Building/delete')}",{id:id},function(res){
+                        if(res.code==0){
+                            layer.msg(res.msg, {time: 2000, icon:5});
+                        }else{
+                            obj.del();//前端删除
+                            layer.msg(res.msg, {time: 1500, icon:6});
+                        }
+                    },"json");
+                });
+            }
+        });
+
+        //搜索
+        $("#search").click(function () {
+            //获取搜索的关键字
+            var keyword = $("#keyword").val();
+            if(keyword==''){return false;}
+            var url = "/admin/Building/getList?keyword="+keyword;
+            table.reload('table', {
+                url: url
+                ,where: {}
+            });
+        });
+        //重置搜索
+        $("#reset").click(function () {
+            $("#keyword").val('');
+            //表格重载
+            table.reload('table', {
+                url: "/admin/Building/getList?keyword="
+                ,where: {}
+            });
+        });
+        //添加表单提交
+        form.on('submit(addBulding)', function (data) {
+            $.post("{:url('admin/Building/add')}",{data:data.field},function(res){
+                if(res.code==0){
+                    layer.msg(res.msg, {time: 2000, icon:5});
+                }else{
+                    layer.msg(res.msg, {time: 1500, icon:6});
+                    $("form")[0].reset();
+                    form.render();
+                    //表格重载
+                    table.reload('table', {
+                        url: "/admin/Building/getList"
+                        ,where: {}
+                    });
+                }
+            },"json");
+        });
+    });
+</script>
+</body>
+</html>

@@ -82,7 +82,7 @@ class UserModel extends Model
         }
     }
     /**
-     * 启用
+     * 删除
      * @param $id
      * @return array
      */

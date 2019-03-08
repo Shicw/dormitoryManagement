@@ -17,7 +17,7 @@ class User extends AdminBaseController
      * 查看宿管用户页
      */
     public function index(){
-        $buildingList = Db::name('building')->where('delete_time',0)->select();
+        $buildingList = Db::name('building')->select();
         $this->assign('buildingList',$buildingList);
         return $this->fetch();
     }
@@ -95,7 +95,7 @@ class User extends AdminBaseController
         }
     }
     /**
-     * 启用用户
+     * 删除用户
      */
     public function delete(){
         if(!$this->request->isPost()){
@@ -117,7 +117,7 @@ class User extends AdminBaseController
         if(!$this->request->isPost()){
             $this->error('请求失败');
         }
-        $data = $this->request->post('data');
+        $data = $this->request->post()['data'];
         $model = new UserModel();
         $result = $model->doAdd($data);
         if($result['code']===1){

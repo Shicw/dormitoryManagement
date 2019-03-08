@@ -181,6 +181,11 @@
                     layer.msg(res.msg, {time: 1500, icon:6});
                     $("form")[0].reset();
                     form.render();
+                    //表格重载
+                    table.reload('table', {
+                        url: "/admin/user/getList"
+                        ,where: {}
+                    });
                 }
             },"json");
         });
