@@ -1,8 +1,4 @@
-﻿# Host: localhost  (Version 5.5.53)
-# Date: 2019-03-07 17:02:11
-# Generator: MySQL-Front 6.0  (Build 2.20)
-
-
+﻿
 #
 # Structure for table "building"
 #
@@ -10,6 +6,7 @@
 CREATE TABLE `building` (
   `building_id` int(2) NOT NULL DEFAULT '0' COMMENT '楼号',
   `name` varchar(20) NOT NULL DEFAULT '' COMMENT '楼名',
+  `floor_count` varchar(1) NOT NULL COMMENT '楼层数',
   `delete_time` int(11) NOT NULL DEFAULT '0' COMMENT '删除时间(时间戳)',
   PRIMARY KEY (`building_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='宿舍楼表';
