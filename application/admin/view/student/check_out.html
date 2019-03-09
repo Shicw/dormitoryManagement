@@ -99,27 +99,28 @@
             }, "json");
         });
         //办理退宿
-        $("#checkOut").on('click',function() {
-            if (studentId == '') {
-                layer.msg('学号不能为空', {time: 2000, icon: 5});
-                return false;
-            }
-            $.post("{:url('admin/student/checkOutPost')}", {studentId:studentId}, function (res) {
-                if (res.code == 0) {
-                    layer.msg(res.msg, {time: 2000, icon: 5});
-                } else {
-                    layer.msg(res.msg, {time: 1500, icon: 6});
-                    //清空输入框,隐藏学生信息和按钮
-                    $(".layui-card").hide(500);
-                    $("#checkOut").hide();
-                    $("input[name='student_id']").val('');
+        $("#checkOut").on('click',function(){
+            layer.confirm('确定删除吗？', {
+                btn: ['确定', '取消'] //按钮
+            }, function () {
+                if (studentId == '') {
+                    layer.msg('学号不能为空', {time: 2000, icon: 5});
+                    return false;
                 }
-            }, "json");
+                $.post("{:url('admin/student/checkOutPost')}", {studentId:studentId}, function (res) {
+                    if (res.code == 0) {
+                        layer.msg(res.msg, {time: 2000, icon: 5});
+                    } else {
+                        layer.msg(res.msg, {time: 1500, icon: 6});
+                        //清空输入框,隐藏学生信息和按钮
+                        $(".layui-card").hide(500);
+                        $("#checkOut").hide();
+                        $("input[name='student_id']").val('');
+                    }
+                }, "json");
+            }, function () {});
+
         });
-
-
-
-
     });
 
 </script>

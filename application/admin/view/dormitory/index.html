@@ -128,24 +128,29 @@
         });
     }
     function delDormitory() {
-        //删除宿舍检查是否有人住宿
-        var array = thisNodeData.children;
-        for(var i=0;i<array.length;i++){
-            if(array[i]['status']===1){
-                layer.msg('该宿舍有学生住宿,不能删除', {time: 2000, icon: 5});
-                return false;
+        layer.confirm('确定删除吗？', {
+            btn: ['确定','取消'] //按钮
+        }, function(){
+            //删除宿舍检查是否有人住宿
+            var array = thisNodeData.children;
+            for(var i=0;i<array.length;i++){
+                if(array[i]['status']===1){
+                    layer.msg('该宿舍有学生住宿,不能删除', {time: 2000, icon: 5});
+                    return false;
+                }
             }
-        }
-        $.post("{:url('admin/Dormitory/delete')}", {id: thisNodeData.id}, function (res) {
-            if (res.code == 0) {
-                layer.msg(res.msg, {time: 2000, icon: 5});
-            } else {
-                layer.msg(res.msg, {time: 2000, icon: 6});
-                setTimeout(function () {
-                    window.location.href = "/admin/dormitory/index";
-                },1000);
-            }
-        });
+            $.post("{:url('admin/Dormitory/delete')}", {id: thisNodeData.id}, function (res) {
+                if (res.code == 0) {
+                    layer.msg(res.msg, {time: 2000, icon: 5});
+                } else {
+                    layer.msg(res.msg, {time: 2000, icon: 6});
+                    setTimeout(function () {
+                        window.location.href = "/admin/dormitory/index";
+                    },1000);
+                }
+            });
+        }, function(){});
+
     }
 </script>
 </body>
