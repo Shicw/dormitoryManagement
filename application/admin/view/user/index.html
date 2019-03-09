@@ -172,7 +172,7 @@
                 ,where: {}
             });
         });
-        //监听办理借阅表单提交
+        //监听表单提交
         form.on('submit(addUser)', function (data) {
             $.post("{:url('admin/user/addUser')}",{data:data.field},function(res){
                 if(res.code==0){

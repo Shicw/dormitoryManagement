@@ -1,0 +1,69 @@
+{include file="public/head" /}
+</head>
+<body class="layui-layout-body">
+<div class="layui-layout layui-layout-admin">
+
+        <div class="layui-tab-content">
+
+                <div class="layui-row">
+                    <div class="layui-col-md5">
+                        <form class="layui-form" action="">
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">所属楼号:</label>
+                                <div class="layui-input-block">
+                                    <input type="text" name="building_id" lay-verify="required" autocomplete="off"
+                                           class="layui-input" readonly value="{$buildingId}">
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">楼层</label>
+                                <div class="layui-input-block">
+                                    <input type="number" name="floor" lay-verify="required" autocomplete="off"
+                                           class="layui-input" readonly value="{$floor}">
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">宿舍号</label>
+                                <div class="layui-input-block">
+                                    <input type="text" name="dormitory_number" lay-verify="required" autocomplete="off"
+                                           class="layui-input">
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">床位数</label>
+                                <div class="layui-input-block">
+                                    <input type="text" name="max_student_count" lay-verify="required" autocomplete="off"
+                                           class="layui-input">
+                                </div>
+                            </div>
+                            <div class="layui-form-item" style="text-align: center">
+                                <a class="layui-btn" lay-submit="" lay-filter="add">提交</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+        </div>
+
+</div>
+<script>
+    layui.use(['element','table','form','layer'], function(){
+        var table = layui.table,layer = layui.layer,form = layui.form;
+        //监听表单提交
+        form.on('submit(add)', function (data) {
+            $.post("{:url('admin/dormitory/addPost')}",{data:data.field},function(res){
+                if(res.code==0){
+                    layer.msg(res.msg, {time: 2000, icon:5});
+                }else{
+                    layer.msg(res.msg, {time: 1500, icon:6});
+                    setTimeout(function () {
+                        parent.location.href = "/admin/dormitory/index";
+                    },1000);
+
+                }
+            },"json");
+        });
+    });
+</script>
+</body>
+</html>

@@ -14,6 +14,8 @@
                     <ul id="dormitory"></ul>
                 </div>
                 <div class="layui-col-md6">
+                    <a href="javascript:;" class="layui-btn" id="addDormitory" style="display: none;" onclick="addDormitory()">添加宿舍</a>
+                    <a href="javascript:;" class="layui-btn" id="delDormitory" style="display: none;" onclick="delDormitory()">删除宿舍</a>
                     <div class="layui-card" hidden>
                         <div class="layui-card-body" style="overflow: hidden;">
                             <div class="layui-col-md6 left">
@@ -28,8 +30,10 @@
     </div>
 </div>
 <script>
+    var thisNodeData = {};//存放点击节点的数据
+    var layer;
     layui.use(['tree','layer'], function(){
-        var layer = layui.layer;
+        layer = layui.layer;
         $.get("/admin/dormitory/getDormitoryTree",{},function(res){
             //console.log(res.data);
             if(res.code===1){
@@ -37,63 +41,72 @@
                     elem: '#dormitory' //传入元素选择器
                     ,nodes: res.data
                     ,click: function(node){
-                        console.log(node) //node即为当前点击的节点数据
-                        if(node.type=='bed'){
+                        //点击节点时隐藏元素
+                        $("#addDormitory").hide();
+                        $("#delDormitory").hide();
+                        $(".layui-card").hide();
+                        $(".left").html("");
+                        $(".right").html("");
+                        //console.log(node) //node即为当前点击的节点数据
+                        if(node.type=='bed') {
                             //点击床位ajax显示学生信息
-                            $.get("{:url('admin/Dormitory/getStudentDetail')}", {bedId:node.id}, function (res) {
+                            $.get("{:url('admin/Dormitory/getStudentDetail')}", {bedId: node.id}, function (res) {
                                 if (res.code == 0) {
-                                    $(".layui-card").hide();
-                                    $(".left").html("");
-                                    $(".right").html("");
                                     layer.msg(res.msg, {time: 2000, icon: 5});
                                 } else {
                                     var data = res.data;
                                     var left_str = "<div class=\"layui-input-block\">" +
                                         "                <label>学号:</label>" +
-                                        "                <span>"+data.student_id+"</span>" +
+                                        "                <span>" + data.student_id + "</span>" +
                                         "           </div>" +
                                         "           <div class=\"layui-input-block\">" +
                                         "                <label>姓名:</label>" +
-                                        "                <span>"+data.name+"</span>" +
+                                        "                <span>" + data.name + "</span>" +
                                         "           </div>" +
                                         "           <div class=\"layui-input-block\">" +
                                         "                <label>性别:</label>" +
-                                        "                <span>"+(data.sex ? '女' : '男')+"</span>" +
+                                        "                <span>" + (data.sex ? '女' : '男') + "</span>" +
                                         "           </div>" +
                                         "           <div class=\"layui-input-block\">" +
                                         "                <label>手机:</label>" +
-                                        "                <span>"+data.mobile+"</span>" +
+                                        "                <span>" + data.mobile + "</span>" +
                                         "           </div>" +
                                         "           <div class=\"layui-input-block\">" +
                                         "                <label>出生日期:</label>" +
-                                        "                <span>"+data.birthday+"</span>" +
+                                        "                <span>" + data.birthday + "</span>" +
                                         "           </div>";
                                     $(".left").html(left_str);
                                     var right_str = "<div class=\"layui-input-block\">" +
                                         "                <label>专业班级:</label>" +
-                                        "                <span>"+data.class+"</span>" +
+                                        "                <span>" + data.class + "</span>" +
                                         "           </div>" +
                                         "           <div class=\"layui-input-block\">" +
                                         "                <label>年级:</label>" +
-                                        "                <span>"+data.grade+"级</span>" +
+                                        "                <span>" + data.grade + "级</span>" +
                                         "           </div>" +
                                         "           <div class=\"layui-input-block\">" +
                                         "                <label>楼号:</label>" +
-                                        "                <span>"+data.building_id+"</span>" +
+                                        "                <span>" + data.building_id + "</span>" +
                                         "           </div>" +
                                         "           <div class=\"layui-input-block\">" +
                                         "                <label>宿舍号:</label>" +
-                                        "                <span>"+data.dormitory_number+"</span>" +
+                                        "                <span>" + data.dormitory_number + "</span>" +
                                         "           </div>" +
                                         "           <div class=\"layui-input-block\">" +
                                         "                <label>床号:</label>" +
-                                        "                <span>"+data.bed_number+"</span>" +
+                                        "                <span>" + data.bed_number + "</span>" +
                                         "           </div>";
                                     $(".right").html(right_str);
                                     $(".layui-card").show(500);
                                     $("#checkOut").show();
                                 }
                             }, "json");
+                        }else if(node.type=='floor'){
+                            $("#addDormitory").show();
+                            thisNodeData = node;
+                        }else if(node.type=='dormitory'){
+                            $("#delDormitory").show();
+                            thisNodeData = node;
                         }
                     }
                 });
@@ -101,7 +114,39 @@
                 layer.msg(res.msg, {time: 2000, icon: 5});
             }
         });
+
     });
+    function addDormitory(){
+        var url = '/admin/dormitory/add?buildingId='+thisNodeData.building_id+'&floor='+ thisNodeData.name.substr(0,1);
+        layer.open({
+            type: 2,
+            title: '添加宿舍',
+            shadeClose: true,
+            shade: 0.8,
+            area: ['50%', '60%'],
+            content: url
+        });
+    }
+    function delDormitory() {
+        //删除宿舍检查是否有人住宿
+        var array = thisNodeData.children;
+        for(var i=0;i<array.length;i++){
+            if(array[i]['status']===1){
+                layer.msg('该宿舍有学生住宿,不能删除', {time: 2000, icon: 5});
+                return false;
+            }
+        }
+        $.post("{:url('admin/Dormitory/delete')}", {id: thisNodeData.id}, function (res) {
+            if (res.code == 0) {
+                layer.msg(res.msg, {time: 2000, icon: 5});
+            } else {
+                layer.msg(res.msg, {time: 2000, icon: 6});
+                setTimeout(function () {
+                    window.location.href = "/admin/dormitory/index";
+                },1000);
+            }
+        });
+    }
 </script>
 </body>
 </html>

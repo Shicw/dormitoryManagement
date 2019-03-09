@@ -36,13 +36,13 @@ class Dormitory extends AdminBaseController
             $thisBuilding = ['name'=>$a['building_id'].'('.$a['name'].')','id'=>$a['building_id'],'type'=>'building','children'=>[]];
             //为楼创建楼层children子节点数组
             for($i=0;$i<$a['floor_count'];$i++){
-                array_push($thisBuilding['children'],['name'=>($i+1).'层','type'=>'floor','children'=>[]]);
+                array_push($thisBuilding['children'],['name'=>($i+1).'层','type'=>'floor','building_id'=>$a['building_id'],'children'=>[]]);
             }
 
             //循环每个楼获取其宿舍
             $dormitory = Db::name('dormitory')
                 ->field(['id','dormitory_number','floor'])
-                ->where(['building_id'=>$a['building_id']])
+                ->where(['building_id'=>$a['building_id'],'delete_time'=>0])
                 ->select();
             //循环每个宿舍,获取其床位数,然后按照楼层分组
             foreach ($dormitory as $key2 => $d){
@@ -129,6 +129,44 @@ class Dormitory extends AdminBaseController
             $this->success('请求成功','',$found);
         }else{
             $this->error('无该学生住宿信息');
+        }
+    }
+    /**
+     * 添加宿舍页面
+     */
+    public function add(){
+        $buildingId = $this->request->get('buildingId');
+        $floor = $this->request->get('floor');
+        $this->assign([
+            'buildingId' => $buildingId,
+            'floor' => $floor
+        ]);
+        return $this->fetch();
+    }
+    /**
+     * 添加宿舍提交
+     */
+    public function addPost(){
+        $data = $this->request->post()['data'];
+        $model = new DormitoryModel();
+        $result = $model->doAdd($data);
+        if($result['code']===1){
+            $this->success($result['msg']);
+        }else{
+            $this->error($result['msg']);
+        }
+    }
+    /**
+     * 添加宿舍提交
+     */
+    public function delete(){
+        $dormitoryId = $this->request->post('id');
+        $model = new DormitoryModel();
+        $result = $model->doDelete($dormitoryId);
+        if($result['code']===1){
+            $this->success($result['msg']);
+        }else{
+            $this->error($result['msg']);
         }
     }
 }
