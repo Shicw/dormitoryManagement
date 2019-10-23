@@ -15,7 +15,7 @@ CREATE TABLE `building` (
 # Data for table "building"
 #
 
-INSERT INTO `building` VALUES (39,'39号楼',0);
+INSERT INTO `building` VALUES (39,'39号楼',6,0);
 
 #
 # Structure for table "dormitory"
